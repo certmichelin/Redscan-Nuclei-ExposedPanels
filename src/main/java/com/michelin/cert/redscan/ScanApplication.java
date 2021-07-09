@@ -35,6 +35,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * RedScan scanner main class.
@@ -44,6 +46,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Maxence SCHMITT
  */
 @SpringBootApplication
+@EnableScheduling
 public class ScanApplication {
 
   //Only required if pushing data to queues
@@ -68,6 +71,19 @@ public class ScanApplication {
    */
   public static void main(String[] args) {
     SpringApplication.run(ScanApplication.class, args);
+  }
+
+  /**
+   * Update nuclei template every day.
+   */
+  @Scheduled(cron = "@daily")
+  public void updateNucleiTemplate() {
+    LogManager.getLogger(ScanApplication.class).info("Nuclei : Update template");
+    OsCommandExecutor osCommandExecutor = new OsCommandExecutor();
+    StreamGobbler streamGobbler = osCommandExecutor.execute("/nucleilauncher");
+    if (streamGobbler != null) {
+      LogManager.getLogger(ScanApplication.class).info(String.format("Nuclei template update exited with status %s ", streamGobbler.getExitStatus()));
+    }
   }
 
   /**

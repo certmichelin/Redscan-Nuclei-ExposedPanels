@@ -1,4 +1,4 @@
-FROM docker.pkg.github.com/certmichelin/redscan-nuclei-base/redscan-nuclei-base:2.3.8.0
+FROM docker.pkg.github.com/certmichelin/redscan-nuclei-base/redscan-nuclei-base:2.3.8.1
 
 #Copy the war.
 ARG JAR_FILE=target/app.jar
