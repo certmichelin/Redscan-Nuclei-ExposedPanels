@@ -150,14 +150,22 @@ public class ScanApplication {
         JSONObject info = (JSONObject) jsonResult.get("info");
         String name = (String) info.get("name");
         String severity = (String) info.get("severity");
+        
+        //Retrieve extracted results.
+        JSONArray extractedResultArray = (JSONArray) jsonResult.get("extracted_results");
+        String extractedResult = "";
+        if (extractedResultArray != null) {
+          extractedResult = String.format(", Extracted values : %s", extractedResultArray.toString());
+        }
+
 
         LogManager.getLogger(ScanApplication.class).info(String.format("Panel exposure [%s] found  %s", templateId, url));
 
         raiseVulnerability(convertNucleiSeverity(severity),
                 httpService,
                 templateId,
-                String.format("Exposed Panel : %s", name),
-                String.format("The panel is currenty exposed on this url : %s", url));
+                String.format("Exposed Panel %s : %s", httpService.toUrl(), name),
+                String.format("The panel is currenty exposed on this url : %s%s", url, extractedResult));
       }
     } catch (ParseException e) {
       LogManager.getLogger(ScanApplication.class).error(String.format("Error with json line: Parsing %s", e.toString()));
