@@ -17,6 +17,7 @@
 package com.michelin.cert.redscan;
 
 import com.michelin.cert.redscan.utils.datalake.DatalakeStorageException;
+import com.michelin.cert.redscan.utils.models.reports.CommonTags;
 import com.michelin.cert.redscan.utils.models.reports.Severity;
 import com.michelin.cert.redscan.utils.models.reports.Vulnerability;
 import com.michelin.cert.redscan.utils.models.services.HttpService;
@@ -194,13 +195,14 @@ public class ScanApplication {
 
   private void raiseVulnerability(int severity, HttpService service, String vulnName, String title, String message) {
     Vulnerability vuln = new Vulnerability(
+            Vulnerability.generateId("redscan-nuclei-exposedpanels", vulnName, service.getDomain(), service.getPort(), service.isSsl() ? "https" : "http"),
             severity,
-            vulnName,
             title,
             message,
             service.toUrl(),
-            String.format("%s%s", service.getDomain(), service.getPort(), service.isSsl() ? "https" : "http"),
-            "redscan-nuclei-exposedpanels");
+            "redscan-nuclei-exposedpanels",
+            new String[]{CommonTags.EXPOSURE, CommonTags.MISCONFIGURATION}
+    );
 
     rabbitTemplate.convertAndSend(vuln.getFanoutExchangeName(), "", vuln.toJson());
   }
